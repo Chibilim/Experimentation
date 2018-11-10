@@ -11,11 +11,13 @@ public class JavePluginMonoBehaviour : MonoBehaviour {
 	[SerializeField] private Image m_step1,m_step2,m_step3,m_step4,m_step5,m_step6, m_step7;
 	[SerializeField] private Text m_text;
 	
-	[SerializeField] private Button m_onButton, m_offButton;
+	[SerializeField] private Button m_onButton, m_offButton, m_getListButton;
+
+	[SerializeField] private Dropdown m_dropDown;
 
 	// Use this for initialization
 	void Start () {
-		
+		m_step1.color = Color.red;
 		#if UNITY_ANDROID
 		if(toastExample == null)
 		{
@@ -23,12 +25,13 @@ public class JavePluginMonoBehaviour : MonoBehaviour {
 				activityContext = activityClass.GetStatic<AndroidJavaObject>("currentActivity");
 			}
 			
-			using(AndroidJavaClass pluginClass = new AndroidJavaClass("com.amiskovic.test.javapluginlib.ToastExample")) {
+			using(AndroidJavaClass pluginClass = new AndroidJavaClass("com.amiskovic.test.btandroidlib.ToastExample")) {
 				if(pluginClass != null) {
 					toastExample = pluginClass.CallStatic<AndroidJavaObject>("instance");
 					toastExample.Call("setContext", activityContext);
 					activityContext.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 						toastExample.Call("showMessage", "This is a Toast message");
+						m_step1.color = Color.green;
 					}));
 				}
 			}
@@ -37,7 +40,10 @@ public class JavePluginMonoBehaviour : MonoBehaviour {
 		
 		m_onButton.onClick.AddListener(On);
 		m_offButton.onClick.AddListener(Off);
+		m_getListButton.onClick.AddListener(GetDeviceList);
 	}
+
+
 
 	private void Awake()
 	{
@@ -48,9 +54,12 @@ public class JavePluginMonoBehaviour : MonoBehaviour {
 	void Update()
 	{
 #if UNITY_ANDROID
-		var value = toastExample.Get<int>("value");
-		m_text.text = ++i +" "+ value.ToString();
-		toastExample.Set("value", value+1);
+//		var value = toastExample.Get<int>("value");
+//		var v2 =  toastExample.Get<int>("getValue");
+//
+//		m_text.text = v2.ToString();
+//		m_text.text = ++i +" "+ value.ToString();
+//		toastExample.Set("value", v2+1);
 	#endif
 
 //		if (500 == i)
@@ -65,10 +74,9 @@ public class JavePluginMonoBehaviour : MonoBehaviour {
 	void On()
 	{
 #if UNITY_ANDROID
-		toastExample.Call("showMessage", "On");
 		toastExample.Call("on");
 #endif
-		m_step1.color = Color.green;
+		m_step2.color = Color.green;
 		
 	}
 	
@@ -76,11 +84,33 @@ public class JavePluginMonoBehaviour : MonoBehaviour {
 	void Off()
 	{
 #if UNITY_ANDROID
-		toastExample.Call("showMessage", "OFF");
 		toastExample.Call("off");
 #endif
-		m_step1.color = Color.red;
+		m_step2.color = Color.red;
 		
+	}
+	
+	private void GetDeviceList()
+	{
+		#if UNITY_ANDROID
+		string[] nameArray  = toastExample.Call<string[]>("list");
+
+		if (nameArray != null)
+		{
+			List<Dropdown.OptionData> l = new List<Dropdown.OptionData>();
+
+			foreach (var name in nameArray)
+			{
+				l.Add(new Dropdown.OptionData(name));
+			}
+
+			m_dropDown.options = l;
+		}
+		else
+		{
+			Debug.LogError("no name array");
+		}
+#endif
 	}
 
 }
