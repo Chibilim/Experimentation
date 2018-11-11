@@ -297,7 +297,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: VISIBLE
+  m_Text: CONNECT
 --- !u!222 &301852004
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2762,6 +2762,7 @@ MonoBehaviour:
   m_onButton: {fileID: 1419928678}
   m_offButton: {fileID: 399281524}
   m_getListButton: {fileID: 1553949582}
+  m_connectButton: {fileID: 1303321653}
   m_dropDown: {fileID: 1094490350}
 --- !u!1 &2018609447
 GameObject:
