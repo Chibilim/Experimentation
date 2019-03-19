@@ -9,7 +9,7 @@ import com.ankama.cube.test.rest.Impl.{AdminsService, DevelopersService, Marshal
 import com.ankama.cube.test.rest.api.{AdminsApi, DevelopersApi}
 
 
-class RestService(inventoryService : ActorRef)(implicit system : ActorSystem) extends Actor with SLF4JLogging  {
+class RestService(inventoryService: ActorRef, authService: ActorRef)(implicit system: ActorSystem) extends Actor with SLF4JLogging {
 
   log info s"RestService start"
 
@@ -20,7 +20,8 @@ class RestService(inventoryService : ActorRef)(implicit system : ActorSystem) ex
   val marshaller = new Marshaller()
 
   import akka.http.scaladsl.server.Directives._
-  val routes : Route = new AdminsApi(new AdminsService(inventoryService),marshaller ).route ~ new DevelopersApi(new DevelopersService(inventoryService),marshaller).route
+
+  val routes: Route = new AdminsApi(new AdminsService(inventoryService), marshaller, authService).route ~ new DevelopersApi(new DevelopersService(inventoryService), marshaller).route
 
   val bindingFuture = Http().bindAndHandle(routes, "0.0.0.0", 9000)
 
@@ -29,6 +30,6 @@ class RestService(inventoryService : ActorRef)(implicit system : ActorSystem) ex
   }
 }
 
-object RestService{
-  def props(inventoryService : ActorRef)(implicit system : ActorSystem) = Props(new RestService(inventoryService))
+object RestService {
+  def props(inventoryService: ActorRef, authService: ActorRef)(implicit system: ActorSystem) = Props(new RestService(inventoryService, authService))
 }
